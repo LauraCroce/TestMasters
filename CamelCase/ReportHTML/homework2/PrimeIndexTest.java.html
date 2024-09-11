@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrimeIndexTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">homework2 in CamelCase Coverage Results</a> &gt; <a href="index.source.html" class="el_package">homework2</a> &gt; <span class="el_source">PrimeIndexTest.java</span></div><h1>PrimeIndexTest.java</h1><pre class="source lang-java linenums">package homework2;
+
+import net.jqwik.api.*;
+import net.jqwik.api.constraints.IntRange;
+import net.jqwik.api.constraints.Size;
+import net.jqwik.api.constraints.UniqueElements;
+import net.jqwik.api.statistics.Histogram;
+import net.jqwik.api.statistics.Statistics;
+import net.jqwik.api.statistics.StatisticsReport;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+<span class="fc" id="L17">class PrimeIndexTest {</span>
+<span class="fc" id="L18">    PrimeIndex primeIndex = new PrimeIndex();</span>
+
+    @Property(generation = GenerationMode.RANDOMIZED)
+    @Report(Reporting.GENERATED)
+    @StatisticsReport(format = Histogram.class)
+    void testInvalid(@ForAll @Size(max = 100) List&lt;@IntRange(min = -200, max = -100) Integer&gt; numbers,
+                     @ForAll boolean findFirst) {
+
+<span class="pc" id="L26">        assertThrows(IllegalArgumentException.class, () -&gt; primeIndex.findPrimeIndex(numbers, findFirst));</span>
+<span class="fc" id="L27">    }</span>
+
+    @Property(generation = GenerationMode.RANDOMIZED)
+    @Report(Reporting.GENERATED)
+    @StatisticsReport(format = Histogram.class)
+    void testFail(@ForAll @Size(min = 1, max = 100) List&lt;@IntRange(min = 4604, max = 4620) Integer&gt; numbers,
+                  @ForAll boolean findFirst) {
+
+        int expected, actual;
+
+<span class="fc" id="L37">        expected = -1;</span>
+<span class="fc" id="L38">        actual = primeIndex.findPrimeIndex(numbers, findFirst);</span>
+
+<span class="fc" id="L40">        assertEquals(expected, actual);</span>
+<span class="fc" id="L41">    }</span>
+
+    @Property(generation = GenerationMode.RANDOMIZED)
+    @Report(Reporting.GENERATED)
+    @StatisticsReport(format = Histogram.class)
+    void testPass(@ForAll @Size(min = 20, max = 50) List&lt;@IntRange(min = 4604, max = 4620) Integer&gt; numbers,
+                  @ForAll boolean findFirst,
+                  @ForAll @Size(value = 3) @UniqueElements List&lt;@IntRange(max = 19) Integer&gt; indexesToAddPrimes,
+                  @ForAll(&quot;primes&quot;) @Size(value = 3) List&lt;Integer&gt; primeToAdd) {
+
+        int expected, actual;
+
+<span class="fc" id="L53">        Collections.sort(indexesToAddPrimes); // Sort the list of indexes to add primes in ascending order</span>
+
+        int i, j;
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        for (i = 0; i &lt; indexesToAddPrimes.size(); i++) {</span>
+<span class="fc" id="L57">            numbers.add(indexesToAddPrimes.get(i), primeToAdd.get(i)); // Add primes to the list at the specified indexes</span>
+        }
+
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (findFirst) {</span>
+            // If we want to find the first prime number, the expected index is the first index in the list
+<span class="fc" id="L62">            expected = indexesToAddPrimes.get(0);</span>
+        } else {
+            // If we want to find the last prime number, the expected index is the last index in the list
+<span class="fc" id="L65">            expected = indexesToAddPrimes.get(indexesToAddPrimes.size() - 1);</span>
+        }
+
+<span class="fc" id="L68">        actual = primeIndex.findPrimeIndex(numbers, findFirst);</span>
+
+        // Collecting statistics for the number of divisors of each number in the list and the divisors of each number
+        int divisorCount;
+        int number;
+
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        for (i = 0; i &lt; numbers.size(); i++) {</span>
+<span class="fc" id="L75">            divisorCount = 2; // Every number is divisible by 1 and itself, so the divisor count is at least 2</span>
+<span class="fc" id="L76">            number = numbers.get(i);</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">            for (j = 2; j &lt;= Math.sqrt(number); j++) {</span>
+                // Check if j is a divisor of the given number
+<span class="fc bfc" id="L79" title="All 2 branches covered.">                if (number % j == 0) {</span>
+<span class="fc" id="L80">                    Statistics.label(&quot;Divisor&quot;).collect(j);</span>
+<span class="fc" id="L81">                    divisorCount = divisorCount + 1;</span>
+                }
+            }
+
+<span class="fc" id="L85">            Statistics.label(&quot;Number of divisors&quot;).collect(divisorCount);</span>
+        }
+
+<span class="fc" id="L88">        assertEquals(expected, actual);</span>
+<span class="fc" id="L89">    }</span>
+
+    @Provide
+    Arbitrary&lt;List&lt;Integer&gt;&gt; primes() {
+<span class="fc" id="L93">        return Arbitraries.randomValue(this::generatePrime).list();</span>
+    }
+
+
+    private Integer generatePrime(Random random) {
+        int candidate;
+        do {
+<span class="fc" id="L100">            candidate = random.nextInt(10000) + 2;</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">            Statistics.collect(isPrime(candidate) ? &quot;prime&quot; : &quot;nonPrime&quot;);</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        } while (!isPrime(candidate));</span>
+<span class="fc" id="L103">        Statistics.label(&quot;Prime number&quot;).collect(candidate);</span>
+<span class="fc" id="L104">        return candidate;</span>
+    }
+
+    private boolean isPrime(int number) {
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">        if (number &lt;= 1) {</span>
+<span class="nc" id="L109">            return false;</span>
+        }
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        for (int j = 2; j &lt;= Math.sqrt(number); j++) {</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">            if (number % j == 0) {</span>
+<span class="fc" id="L113">                return false;</span>
+            }
+        }
+<span class="fc" id="L116">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

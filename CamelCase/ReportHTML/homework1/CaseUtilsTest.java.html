@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CaseUtilsTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">homework1 in CamelCase Coverage Results</a> &gt; <a href="index.source.html" class="el_package">homework1</a> &gt; <span class="el_source">CaseUtilsTest.java</span></div><h1>CaseUtilsTest.java</h1><pre class="source lang-java linenums">package homework1;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Classe di unit tests per la classe CaseUtils.
+ */
+<span class="fc" id="L16">class CaseUtilsTest {</span>
+<span class="fc" id="L17">    CaseUtils caseUtils = new CaseUtils();</span>
+
+    @ParameterizedTest
+    @MethodSource(&quot;toCamelCaseArgs&quot;)
+    void testToCamelCase(String expected, String str, final boolean capitalizeFirstLetter, final char... delimiters) {
+<span class="fc" id="L22">        assertEquals(expected, caseUtils.convertToCamelCase(str, capitalizeFirstLetter, delimiters));</span>
+<span class="fc" id="L23">    }</span>
+
+    static Stream&lt;Arguments&gt; toCamelCaseArgs() {
+<span class="fc" id="L26">        return Stream.of(</span>
+
+                // T1: empty string, capitalizeFirstLetter = false, 1 delimiter
+<span class="fc" id="L29">                Arguments.of(&quot;&quot;, &quot;&quot;, false, new char[]{'a'}),</span>
+                // T2: null string, capitalizeFirstLetter = false, 1 delimiter
+<span class="fc" id="L31">                Arguments.of(null, null, false, new char[]{'a'}),</span>
+                // T3: string length &gt; 1, capitalizeFirstLetter = true, 1 delimiter
+<span class="fc" id="L33">                Arguments.of(&quot;CMelCSeConvention&quot;, &quot;camel case convention&quot;, true, new char[]{'a'}),</span>
+                // T4: string length &gt; 1, capitalizeFirstLetter = false, null delimiters array
+<span class="fc" id="L35">                Arguments.of(&quot;camelCaseConvention&quot;, &quot;camel case convention&quot;, false, null),</span>
+                // T5: string length &gt; 1, capitalizeFirstLetter = false, empty delimiters array
+<span class="fc" id="L37">                Arguments.of(&quot;camelCaseConvention&quot;, &quot;camel case convention&quot;, false, new char[]{}),</span>
+
+                // T6: string length 1, capitalizeFirstLetter = false, 1 delimiter
+                // (Delimiter is not present in the string)
+<span class="fc" id="L41">                Arguments.of(&quot;c&quot;, &quot;c&quot;, false, new char[]{'a'}),</span>
+                // T7: string length 1, capitalizeFirstLetter = false, 1 delimiter
+                // (Delimiter is present in the string)
+<span class="fc" id="L44">                Arguments.of(&quot;&quot;, &quot;c&quot;, false, new char[]{'c'}), // failed</span>
+
+                // T8: string length 1, capitalizeFirstLetter = false, &gt; 1 delimiters
+                // (Delimiters are not present in the string)
+<span class="fc" id="L48">                Arguments.of(&quot;c&quot;, &quot;c&quot;, false, new char[]{'a', 'b'}),</span>
+                // T9: string length 1, capitalizeFirstLetter = false, &gt; 1 delimiters
+                // (One delimiter is present in the string and the others are not)
+<span class="fc" id="L51">                Arguments.of(&quot;&quot;, &quot;c&quot;, false, new char[]{'a', 'c'}), // failed</span>
+                // T10: string length 1, capitalizeFirstLetter = false, &gt; 1 delimiters
+                // (All delimiters are present in the string)
+<span class="fc" id="L54">                Arguments.of(&quot;&quot;, &quot;c&quot;, false, new char[]{'c', 'c'}), // failed</span>
+
+                // T11: string length 1, capitalizeFirstLetter = true, empty delimiters array
+<span class="fc" id="L57">                Arguments.of(&quot;C&quot;, &quot;c&quot;, true, new char[]{}),</span>
+
+                // T12: string length &gt; 1, capitalizeFirstLetter = false, &gt; 1 delimiters
+<span class="fc" id="L60">                Arguments.of(&quot;caElCaseConEntion&quot;, &quot;camel case convention&quot;, false, new char[]{'m', 'v'}),</span>
+
+                // CREATIVITY TEST CASES
+                // Input string is already camel case formatted,
+<span class="fc" id="L64">                Arguments.of(&quot;camelcaseconvention&quot;, &quot;camelCaseConvention&quot;, false, null),</span>
+                // Input string contains special characters
+<span class="fc" id="L66">                Arguments.of(&quot;uneÉcole&quot;, &quot;une école&quot;, false, null),</span>
+<span class="fc" id="L67">                Arguments.of(&quot;uneCole&quot;, &quot;une école&quot;, false, new char[]{'é'}),</span>
+                // Input string contains numbers
+<span class="fc" id="L69">                Arguments.of(&quot;junit5TestingFramework&quot;, &quot;JUnit5 Testing Framework&quot;, false, null),</span>
+<span class="fc" id="L70">                Arguments.of(&quot;junitTestingFramework&quot;, &quot;JUnit5 Testing Framework&quot;, false, new char[]{'5'})</span>
+        );
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
